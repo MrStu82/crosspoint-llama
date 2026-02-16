@@ -603,7 +603,11 @@ bool PngToBmpConverter::pngFileToBmpStreamInternal(FsFile& pngFile, Print& bmpOu
   bool needsScaling = false;
 
   if (targetWidth > 0 && targetHeight > 0 &&
+<<<<<<< HEAD
       (static_cast<int>(width) != targetWidth || static_cast<int>(height) != targetHeight)) {
+=======
+      (static_cast<int>(width) > targetWidth || static_cast<int>(height) > targetHeight)) {
+>>>>>>> 0bc6747 (feat: Add PNG cover image support for EPUB books (#827))
     const float scaleToFitWidth = static_cast<float>(targetWidth) / width;
     const float scaleToFitHeight = static_cast<float>(targetHeight) / height;
     float scale = 1.0;
@@ -622,7 +626,11 @@ bool PngToBmpConverter::pngFileToBmpStreamInternal(FsFile& pngFile, Print& bmpOu
     scaleY_fp = (static_cast<uint32_t>(height) << 16) / outHeight;
     needsScaling = true;
 
+<<<<<<< HEAD
     LOG_DBG("PNG", "Scaling %ux%u -> %dx%d (target %dx%d)", width, height, outWidth, outHeight, targetWidth,
+=======
+    LOG_DBG("PNG", "Pre-scaling %ux%u -> %dx%d (fit to %dx%d)", width, height, outWidth, outHeight, targetWidth,
+>>>>>>> 0bc6747 (feat: Add PNG cover image support for EPUB books (#827))
             targetHeight);
   }
 
@@ -767,12 +775,19 @@ bool PngToBmpConverter::pngFileToBmpStreamInternal(FsFile& pngFile, Print& bmpOu
         rowCount[outX] += count;
       }
 
+<<<<<<< HEAD
       // Check if we've crossed into the next output row(s)
       const uint32_t srcY_fp = static_cast<uint32_t>(y + 1) << 16;
 
       // Output all rows whose boundaries we've crossed (handles both up and downscaling)
       // For upscaling, one source row may produce multiple output rows
       while (srcY_fp >= nextOutY_srcStart && currentOutY < outHeight) {
+=======
+      // Check if we've crossed into the next output row
+      const uint32_t srcY_fp = static_cast<uint32_t>(y + 1) << 16;
+
+      if (srcY_fp >= nextOutY_srcStart && currentOutY < outHeight) {
+>>>>>>> 0bc6747 (feat: Add PNG cover image support for EPUB books (#827))
         memset(rowBuffer, 0, bytesPerRow);
 
         if (USE_8BIT_OUTPUT && !oneBit) {
@@ -814,6 +829,7 @@ bool PngToBmpConverter::pngFileToBmpStreamInternal(FsFile& pngFile, Print& bmpOu
         bmpOut.write(rowBuffer, bytesPerRow);
         currentOutY++;
 
+<<<<<<< HEAD
         nextOutY_srcStart = static_cast<uint32_t>(currentOutY + 1) * scaleY_fp;
 
         // For upscaling: don't reset accumulators if next output row uses same source data
@@ -825,6 +841,12 @@ bool PngToBmpConverter::pngFileToBmpStreamInternal(FsFile& pngFile, Print& bmpOu
         // Moving to next source row - reset accumulators
         memset(rowAccum, 0, outWidth * sizeof(uint32_t));
         memset(rowCount, 0, outWidth * sizeof(uint16_t));
+=======
+        memset(rowAccum, 0, outWidth * sizeof(uint32_t));
+        memset(rowCount, 0, outWidth * sizeof(uint16_t));
+
+        nextOutY_srcStart = static_cast<uint32_t>(currentOutY + 1) * scaleY_fp;
+>>>>>>> 0bc6747 (feat: Add PNG cover image support for EPUB books (#827))
       }
     }
 

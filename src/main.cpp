@@ -21,16 +21,21 @@
 #include "activities/boot_sleep/BootActivity.h"
 #include "activities/boot_sleep/SleepActivity.h"
 #include "activities/browser/OpdsBookBrowserActivity.h"
+#include "activities/game/GameActivity.h"
+#include "activities/game/GameTitleActivity.h"
 #include "activities/home/HomeActivity.h"
 #include "activities/home/MyLibraryActivity.h"
 #include "activities/home/RecentBooksActivity.h"
+#include "activities/home/StatsActivity.h"
 #include "activities/network/CrossPointWebServerActivity.h"
 #include "activities/reader/ReaderActivity.h"
 #include "activities/settings/SettingsActivity.h"
 #include "activities/util/FullScreenMessageActivity.h"
 #include "components/UITheme.h"
 #include "fontIds.h"
+#include "game/GameState.h"
 #include "util/ButtonNavigator.h"
+
 
 HalDisplay display;
 HalGPIO gpio;
@@ -230,6 +235,11 @@ void onGoToSettings() {
   enterNewActivity(new SettingsActivity(renderer, mappedInputManager, onGoHome));
 }
 
+void onGoToStats() {
+  exitActivity();
+  enterNewActivity(new StatsActivity(renderer, mappedInputManager, onGoHome));
+}
+
 void onGoToMyLibrary() {
   exitActivity();
   enterNewActivity(new MyLibraryActivity(renderer, mappedInputManager, onGoHome, onGoToReader));
@@ -250,10 +260,27 @@ void onGoToBrowser() {
   enterNewActivity(new OpdsBookBrowserActivity(renderer, mappedInputManager, onGoHome));
 }
 
+void onStartGame();
+
+void onGoToGame() {
+  exitActivity();
+  enterNewActivity(new GameTitleActivity(renderer, mappedInputManager, onStartGame, onGoHome));
+}
+
+void onStartGame() {
+  // If no save exists, seed a new game
+  if (!GAME_STATE.hasSaveFile()) {
+    // Use millis() as entropy source for the seed
+    GAME_STATE.newGame(static_cast<uint32_t>(millis()) ^ 0xDEADBEEF);
+  }
+  exitActivity();
+  enterNewActivity(new GameActivity(renderer, mappedInputManager, onGoHome));
+}
+
 void onGoHome() {
   exitActivity();
   enterNewActivity(new HomeActivity(renderer, mappedInputManager, onGoToReader, onGoToMyLibrary, onGoToRecentBooks,
-                                    onGoToSettings, onGoToFileTransfer, onGoToBrowser));
+                                    onGoToSettings, onGoToFileTransfer, onGoToBrowser, onGoToStats, onGoToGame));
 }
 
 void setupDisplayAndFonts() {
@@ -314,6 +341,13 @@ void setup() {
   }
 
   SETTINGS.loadFromFile();
+
+  // Set the timezone
+  char tzBuffer[16];
+  snprintf(tzBuffer, sizeof(tzBuffer), "UTC%+d", -SETTINGS.timezoneOffsetHours);
+  setenv("TZ", tzBuffer, 1);
+  tzset();
+
   I18N.loadSettings();
   KOREADER_STORE.loadFromFile();
   UITheme::getInstance().reload();

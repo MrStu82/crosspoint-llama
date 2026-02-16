@@ -12,6 +12,7 @@
 #include "MappedInputManager.h"
 #include "OtaUpdateActivity.h"
 #include "SettingsList.h"
+#include "TimeSettingsActivity.h"
 #include "activities/network/WifiSelectionActivity.h"
 #include "components/UITheme.h"
 #include "fontIds.h"
@@ -51,6 +52,7 @@ void SettingsActivity::onEnter() {
   systemSettings.push_back(SettingInfo::Action(StrId::STR_CLEAR_READING_CACHE, SettingAction::ClearCache));
   systemSettings.push_back(SettingInfo::Action(StrId::STR_CHECK_UPDATES, SettingAction::CheckForUpdates));
   systemSettings.push_back(SettingInfo::Action(StrId::STR_LANGUAGE, SettingAction::Language));
+  systemSettings.push_back(SettingInfo::Action(StrId::STR_SET_DATE_TIME, SettingAction::SetDateTime));
 
   // Reset selection to first category
   selectedCategoryIndex = 0;
@@ -198,6 +200,9 @@ void SettingsActivity::toggleCurrentSetting() {
         break;
       case SettingAction::Language:
         enterSubActivity(new LanguageSelectActivity(renderer, mappedInput, onComplete));
+        break;
+      case SettingAction::SetDateTime:
+        enterSubActivity(new TimeSettingsActivity(renderer, mappedInput, onComplete));
         break;
       case SettingAction::None:
         // Do nothing

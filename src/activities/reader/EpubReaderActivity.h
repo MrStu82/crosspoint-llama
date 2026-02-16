@@ -2,11 +2,13 @@
 #include <Epub.h>
 #include <Epub/Section.h>
 
+#include "BookmarkManager.h"
 #include "EpubReaderMenuActivity.h"
 #include "activities/ActivityWithSubactivity.h"
 
 class EpubReaderActivity final : public ActivityWithSubactivity {
   std::shared_ptr<Epub> epub;
+  BookmarkManager bookmarkManager;
   std::unique_ptr<Section> section = nullptr;
   int currentSpineIndex = 0;
   int nextPageNumber = 0;
@@ -18,9 +20,12 @@ class EpubReaderActivity final : public ActivityWithSubactivity {
   bool pendingPercentJump = false;
   // Normalized 0.0-1.0 progress within the target spine item, computed from book percentage.
   float pendingSpineProgress = 0.0f;
-  bool pendingSubactivityExit = false;  // Defer subactivity exit to avoid use-after-free
-  bool pendingGoHome = false;           // Defer go home to avoid race condition with display task
-  bool skipNextButtonCheck = false;     // Skip button processing for one frame after subactivity exit
+  bool pendingSubactivityExit = false;    // Defer subactivity exit to avoid use-after-free
+  bool pendingGoHome = false;             // Defer go home to avoid race condition with display task
+  bool skipNextButtonCheck = false;       // Skip button processing for one frame after subactivity exit
+  bool bookmarkToggledThisPress = false;  // Prevent repeated toggling of bookmark while holding
+  unsigned long sessionStartTime = 0;
+  bool bookFinishedLogged = false;
   const std::function<void()> onGoBack;
   const std::function<void()> onGoHome;
 
@@ -39,6 +44,7 @@ class EpubReaderActivity final : public ActivityWithSubactivity {
                               const std::function<void()>& onGoBack, const std::function<void()>& onGoHome)
       : ActivityWithSubactivity("EpubReader", renderer, mappedInput),
         epub(std::move(epub)),
+        bookmarkManager(this->epub->getBasePath()),
         onGoBack(onGoBack),
         onGoHome(onGoHome) {}
   void onEnter() override;

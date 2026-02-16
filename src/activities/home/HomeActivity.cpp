@@ -20,7 +20,7 @@
 #include "util/StringUtils.h"
 
 int HomeActivity::getMenuItemCount() const {
-  int count = 4;  // My Library, Recents, File transfer, Settings
+  int count = 6;  // My Library, Recents, File transfer, Settings, Stats, Deep Mines
   if (!recentBooks.empty()) {
     count += recentBooks.size();
   }
@@ -47,6 +47,21 @@ void HomeActivity::loadRecentBooks(int maxBooks) {
     }
 
     recentBooks.push_back(book);
+  }
+
+  // Load reading progress for each book from their cache files
+  for (auto& book : recentBooks) {
+    // Build cache path using the same hash as Epub constructor: /.crosspoint/epub_<hash(path)>
+    std::string cachePath = "/.crosspoint/epub_" + std::to_string(std::hash<std::string>{}(book.path));
+    FsFile f;
+    if (Storage.openFileForRead("HOME", cachePath + "/progress.bin", f)) {
+      uint8_t data[7];
+      int dataSize = f.read(data, 7);
+      if (dataSize >= 7) {
+        book.progressPercent = data[6];
+      }
+      f.close();
+    }
   }
 }
 
@@ -193,7 +208,9 @@ void HomeActivity::loop() {
     const int recentsIdx = idx++;
     const int opdsLibraryIdx = hasOpdsUrl ? idx++ : -1;
     const int fileTransferIdx = idx++;
-    const int settingsIdx = idx;
+    const int settingsIdx = idx++;
+    const int statsIdx = idx++;
+    const int gameIdx = idx;
 
     if (selectorIndex < recentBooks.size()) {
       onSelectBook(recentBooks[selectorIndex].path);
@@ -207,6 +224,10 @@ void HomeActivity::loop() {
       onFileTransferOpen();
     } else if (menuSelectedIndex == settingsIdx) {
       onSettingsOpen();
+    } else if (menuSelectedIndex == statsIdx) {
+      onStatsOpen();
+    } else if (menuSelectedIndex == gameIdx) {
+      onGameOpen();
     }
   }
 }
@@ -226,9 +247,9 @@ void HomeActivity::render(Activity::RenderLock&&) {
                           std::bind(&HomeActivity::storeCoverBuffer, this));
 
   // Build menu items dynamically
-  std::vector<const char*> menuItems = {tr(STR_BROWSE_FILES), tr(STR_MENU_RECENT_BOOKS), tr(STR_FILE_TRANSFER),
-                                        tr(STR_SETTINGS_TITLE)};
-  std::vector<UIIcon> menuIcons = {Folder, Recent, Transfer, Settings};
+  std::vector<const char*> menuItems = {tr(STR_BROWSE_FILES),   tr(STR_MENU_RECENT_BOOKS), tr(STR_FILE_TRANSFER),
+                                        tr(STR_SETTINGS_TITLE), "Reading Stats",           "Deep Mines"};
+  std::vector<UIIcon> menuIcons = {Folder, Recent, Transfer, Settings, Stats, Game};
 
   if (hasOpdsUrl) {
     // Insert OPDS Browser after My Library

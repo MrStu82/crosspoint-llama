@@ -7,6 +7,7 @@ struct RecentBook {
   std::string title;
   std::string author;
   std::string coverBmpPath;
+  int progressPercent = -1;  // -1 = unknown, 0-100 = reading progress
 
   bool operator==(const RecentBook& other) const { return path == other.path; }
 };

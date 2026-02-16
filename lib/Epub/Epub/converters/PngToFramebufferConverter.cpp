@@ -329,6 +329,7 @@ bool PngToFramebufferConverter::decodeToFramebuffer(const std::string& imagePath
 
   LOG_DBG("PNG", "PNG %dx%d -> %dx%d (scale %.2f), bpp: %d", ctx.srcWidth, ctx.srcHeight, ctx.dstWidth, ctx.dstHeight,
           ctx.scale, png->getBpp());
+<<<<<<< HEAD
 
   const int pixelType = png->getPixelType();
   const int requiredInternal = requiredPngInternalBufferBytes(ctx.srcWidth, pixelType);
@@ -341,6 +342,8 @@ bool PngToFramebufferConverter::decodeToFramebuffer(const std::string& imagePath
     delete png;
     return false;
   }
+=======
+>>>>>>> 0bc6747 (feat: Add PNG cover image support for EPUB books (#827))
 
   if (png->getBpp() != 8) {
     warnUnsupportedFeature("bit depth (" + std::to_string(png->getBpp()) + "bpp)", imagePath);

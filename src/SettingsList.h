@@ -65,6 +65,8 @@ inline std::vector<SettingInfo> getSettingsList() {
                         "orientation", StrId::STR_CAT_READER),
       SettingInfo::Toggle(StrId::STR_EXTRA_SPACING, &CrossPointSettings::extraParagraphSpacing, "extraParagraphSpacing",
                           StrId::STR_CAT_READER),
+      SettingInfo::Toggle(StrId::STR_CHAPTER_PROGRESS, &CrossPointSettings::showChapterProgressBar,
+                          "showChapterProgressBar", StrId::STR_CAT_READER),
       SettingInfo::Toggle(StrId::STR_TEXT_AA, &CrossPointSettings::textAntiAliasing, "textAntiAliasing",
                           StrId::STR_CAT_READER),
 
@@ -78,6 +80,8 @@ inline std::vector<SettingInfo> getSettingsList() {
                         StrId::STR_CAT_CONTROLS),
 
       // --- System ---
+      SettingInfo::Value(StrId::STR_TIMEZONE, (uint8_t CrossPointSettings::*)&CrossPointSettings::timezoneOffsetHours,
+                         {(uint8_t)-12, 14, 1}, "timezoneOffsetHours", StrId::STR_CAT_SYSTEM),
       SettingInfo::Enum(StrId::STR_TIME_TO_SLEEP, &CrossPointSettings::sleepTimeout,
                         {StrId::STR_MIN_1, StrId::STR_MIN_5, StrId::STR_MIN_10, StrId::STR_MIN_15, StrId::STR_MIN_30},
                         "sleepTimeout", StrId::STR_CAT_SYSTEM),

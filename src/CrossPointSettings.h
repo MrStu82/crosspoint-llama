@@ -138,6 +138,8 @@ class CrossPointSettings {
   // EPUB reading orientation settings
   // 0 = portrait (default), 1 = landscape clockwise, 2 = inverted, 3 = landscape counter-clockwise
   uint8_t orientation = PORTRAIT;
+  // Chapter progress bar toggle
+  uint8_t showChapterProgressBar = 1;
   // Button layouts (front layout retained for migration only)
   uint8_t frontButtonLayout = BACK_CONFIRM_LEFT_RIGHT;
   uint8_t sideButtonLayout = PREV_NEXT;
@@ -174,6 +176,8 @@ class CrossPointSettings {
   uint8_t fadingFix = 0;
   // Use book's embedded CSS styles for EPUB rendering (1 = enabled, 0 = disabled)
   uint8_t embeddedStyle = 1;
+  // Timezone Offset (-12 to +14 hours)
+  int8_t timezoneOffsetHours = 0;
 
   ~CrossPointSettings() = default;
 
